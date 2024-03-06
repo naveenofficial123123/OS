@@ -1,0 +1,89 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Structure to represent a file
+struct File {
+    char name[50];
+};
+
+// Structure to represent a subdirectory
+struct SubDirectory {
+    char name[50];
+    struct File files[100];
+    int fileCount;
+};
+
+// Structure to represent a directory
+struct Directory {
+    char name[50];
+    struct SubDirectory subdirectories[50];
+    int subdirectoryCount;
+};
+
+// Function to create a subdirectory
+struct SubDirectory createSubDirectory(char name[]) {
+    struct SubDirectory newSubDir;
+    strcpy(newSubDir.name, name);
+    newSubDir.fileCount = 0;
+    return newSubDir;
+}
+
+// Function to create a directory
+struct Directory createDirectory(char name[]) {
+    struct Directory newDir;
+    strcpy(newDir.name, name);
+    newDir.subdirectoryCount = 0;
+    return newDir;
+}
+
+// Function to add a subdirectory to a directory
+void addSubDirectory(struct Directory *dir, char subDirName[]) {
+    if (dir->subdirectoryCount < 50) {
+        dir->subdirectories[dir->subdirectoryCount] = createSubDirectory(subDirName);
+        dir->subdirectoryCount++;
+    } else {
+        printf("Directory is full, cannot add more subdirectories.\n");
+    }
+}
+
+// Function to add a file to a subdirectory
+void addFileToSubDirectory(struct SubDirectory *subDir, char fileName[]) {
+    if (subDir->fileCount < 100) {
+        strcpy(subDir->files[subDir->fileCount].name, fileName);
+        subDir->fileCount++;
+    } else {
+        printf("Subdirectory is full, cannot add more files.\n");
+    }
+}
+
+// Function to display the contents of a directory
+void displayDirectory(struct Directory *dir) {
+    printf("Contents of Directory '%s':\n", dir->name);
+    for (int i = 0; i < dir->subdirectoryCount; i++) {
+        printf("  Subdirectory '%s':\n", dir->subdirectories[i].name);
+        for (int j = 0; j < dir->subdirectories[i].fileCount; j++) {
+            printf("    %s\n", dir->subdirectories[i].files[j].name);
+        }
+    }
+}
+
+int main() {
+    // Create a directory
+    struct Directory myDirectory = createDirectory("Root");
+
+    // Add subdirectories to the directory
+    addSubDirectory(&myDirectory, "Documents");
+    addSubDirectory(&myDirectory, "Pictures");
+
+    // Add files to subdirectories
+    addFileToSubDirectory(&myDirectory.subdirectories[0], "doc1.txt");
+    addFileToSubDirectory(&myDirectory.subdirectories[0], "doc2.txt");
+    addFileToSubDirectory(&myDirectory.subdirectories[1], "pic1.jpg");
+    addFileToSubDirectory(&myDirectory.subdirectories[1], "pic2.jpg");
+
+    // Display the contents of the directory
+    displayDirectory(&myDirectory);
+
+    return 0;
+}

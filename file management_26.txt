@@ -1,0 +1,57 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    // Create a file and write to it
+    FILE *file = fopen("example.txt", "w");
+    if (file == NULL) {
+        perror("Error creating the file");
+        exit(EXIT_FAILURE);
+    }
+
+    fprintf(file, "Hello, File Management!\n");
+    fclose(file);
+
+    // Read from the file
+    file = fopen("example.txt", "r");
+    if (file == NULL) {
+        perror("Error opening the file for reading");
+        exit(EXIT_FAILURE);
+    }
+
+    char buffer[100];
+    fscanf(file, "%[^\n]", buffer);
+    printf("Read from file: %s\n", buffer);
+    fclose(file);
+
+    // Append to the file
+    file = fopen("example.txt", "a");
+    if (file == NULL) {
+        perror("Error opening the file for appending");
+        exit(EXIT_FAILURE);
+    }
+
+    fprintf(file, "Appending additional content.\n");
+    fclose(file);
+
+    // Read the updated file
+    file = fopen("example.txt", "r");
+    if (file == NULL) {
+        perror("Error opening the file for reading");
+        exit(EXIT_FAILURE);
+    }
+
+    fscanf(file, "%[^\n]", buffer);
+    printf("Read from file: %s\n", buffer);
+    fclose(file);
+
+    // Delete the file
+    if (remove("example.txt") != 0) {
+        perror("Error deleting the file");
+        exit(EXIT_FAILURE);
+    } else {
+        printf("File deleted successfully.\n");
+    }
+
+    return 0;
+}

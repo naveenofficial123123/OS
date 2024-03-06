@@ -1,0 +1,73 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define PAGE_TABLE_SIZE 3
+
+// Structure to represent a page
+struct Page {
+    int pageNumber;
+    int arrivalTime;
+};
+
+// Function to find the index of the oldest page in memory
+int findOldestPage(struct Page pageTable[], int pageTableSize) {
+    int oldestIndex = 0;
+    for (int i = 1; i < pageTableSize; i++) {
+        if (pageTable[i].arrivalTime < pageTable[oldestIndex].arrivalTime) {
+            oldestIndex = i;
+        }
+    }
+    return oldestIndex;
+}
+
+// Function to simulate FIFO page replacement algorithm
+void simulateFIFO(int pageReferences[], int numReferences) {
+    struct Page pageTable[PAGE_TABLE_SIZE];
+    int pageTableIndex = 0;
+
+    for (int i = 0; i < numReferences; i++) {
+        int currentPage = pageReferences[i];
+
+        // Check if the page is already in memory
+        int pageFound = 0;
+        for (int j = 0; j < pageTableIndex; j++) {
+            if (pageTable[j].pageNumber == currentPage) {
+                pageFound = 1;
+                break;
+            }
+        }
+
+        if (!pageFound) {
+            // Page fault: replace the oldest page in memory
+            if (pageTableIndex < PAGE_TABLE_SIZE) {
+                // Memory is not full
+                pageTable[pageTableIndex].pageNumber = currentPage;
+                pageTable[pageTableIndex].arrivalTime = i;
+                pageTableIndex++;
+            } else {
+                // Memory is full, replace the oldest page
+                int oldestIndex = findOldestPage(pageTable, PAGE_TABLE_SIZE);
+                pageTable[oldestIndex].pageNumber = currentPage;
+                pageTable[oldestIndex].arrivalTime = i;
+            }
+
+            // Print the current state of the page table
+            printf("Page %d loaded into memory:\t", currentPage);
+            for (int j = 0; j < pageTableIndex; j++) {
+                printf("%d ", pageTable[j].pageNumber);
+            }
+            printf("\n");
+        }
+    }
+}
+
+int main() {
+    // Example page reference string
+    int pageReferences[] = {1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5};
+    int numReferences = sizeof(pageReferences) / sizeof(pageReferences[0]);
+
+    // Simulate FIFO page replacement
+    simulateFIFO(pageReferences, numReferences);
+
+    return 0;
+}

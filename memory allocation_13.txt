@@ -1,0 +1,79 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MEMORY_SIZE 1000
+
+// Node structure for free memory blocks
+struct FreeBlock {
+    int size;
+    struct FreeBlock* next;
+};
+
+// Function to initialize memory
+void initializeMemory(char* memory) {
+    for (int i = 0; i < MEMORY_SIZE; ++i) {
+        memory[i] = '.';
+    }
+}
+
+// Function to print memory status
+void printMemory(char* memory) {
+    for (int i = 0; i < MEMORY_SIZE; ++i) {
+        printf("%c", memory[i]);
+    }
+    printf("\n");
+}
+
+// Function to perform First Fit allocation
+void firstFit(char* memory, int size) {
+    int i = 0;
+    while (i < MEMORY_SIZE) {
+        if (memory[i] == '.') {
+            int j = i;
+            int count = 0;
+            while (memory[j] == '.') {
+                ++count;
+                ++j;
+            }
+
+            if (count >= size) {
+                for (int k = i; k < i + size; ++k) {
+                    memory[k] = 'A';  // 'A' represents allocated block
+                }
+                return;
+            }
+
+            i = j;
+        } else {
+            ++i;
+        }
+    }
+
+    printf("Memory allocation failed for size %d using First Fit.\n", size);
+}
+
+// Function to perform Best Fit allocation
+void bestFit(char* memory, int size) {
+    // TODO: Implement Best Fit
+    // You can use the FreeBlock structure to keep track of free memory blocks
+}
+
+// Function to perform Worst Fit allocation
+void worstFit(char* memory, int size) {
+    // TODO: Implement Worst Fit
+}
+
+int main() {
+    char memory[MEMORY_SIZE];
+    initializeMemory(memory);
+
+    // Example allocation using First Fit
+    firstFit(memory, 200);
+    printMemory(memory);
+
+    // TODO: Test Best Fit and Worst Fit strategies
+
+    return 0;
+}
+9:55 PM
+Forwar

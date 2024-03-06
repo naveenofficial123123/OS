@@ -1,0 +1,72 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define PAGE_TABLE_SIZE 3
+
+// Structure to represent a page
+struct Page {
+    int pageNumber;
+    int lastUsed;
+};
+
+// Function to find the index of the least recently used page in memory
+int findLRUPage(struct Page pageTable[], int pageTableSize) {
+    int lruIndex = 0;
+    for (int i = 1; i < pageTableSize; i++) {
+        if (pageTable[i].lastUsed < pageTable[lruIndex].lastUsed) {
+            lruIndex = i;
+        }
+    }
+    return lruIndex;
+}
+
+// Function to simulate LRU page replacement algorithm
+void simulateLRU(int pageReferences[], int numReferences) {
+    struct Page pageTable[PAGE_TABLE_SIZE];
+
+    for (int i = 0; i < PAGE_TABLE_SIZE; i++) {
+        pageTable[i].pageNumber = -1; // Initialize with an invalid page number
+        pageTable[i].lastUsed = 0;    // Initialize with zero usage
+    }
+
+    for (int i = 0; i < numReferences; i++) {
+        int currentPage = pageReferences[i];
+
+        // Check if the page is already in memory
+        int pageFound = -1;
+        for (int j = 0; j < PAGE_TABLE_SIZE; j++) {
+            if (pageTable[j].pageNumber == currentPage) {
+                pageFound = j;
+                break;
+            }
+        }
+
+        if (pageFound != -1) {
+            // Page is already in memory, update the last used time
+            pageTable[pageFound].lastUsed = i;
+        } else {
+            // Page fault: replace the least recently used page in memory
+            int lruIndex = findLRUPage(pageTable, PAGE_TABLE_SIZE);
+            pageTable[lruIndex].pageNumber = currentPage;
+            pageTable[lruIndex].lastUsed = i;
+
+            // Print the current state of the page table
+            printf("Page %d loaded into memory:\t", currentPage);
+            for (int j = 0; j < PAGE_TABLE_SIZE; j++) {
+                printf("%d ", pageTable[j].pageNumber);
+            }
+            printf("\n");
+        }
+    }
+}
+
+int main() {
+    // Example page reference string
+    int pageReferences[] = {1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5};
+    int numReferences = sizeof(pageReferences) / sizeof(pageReferences[0]);
+
+    // Simulate LRU page replacement
+    simulateLRU(pageReferences, numReferences);
+
+    return 0;
+}

@@ -1,0 +1,56 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Structure to represent a file
+struct File {
+    char name[50];
+};
+
+// Structure to represent a directory
+struct Directory {
+    char name[50];
+    struct File files[100];
+    int fileCount;
+};
+
+// Function to create a directory
+struct Directory createDirectory(char name[]) {
+    struct Directory newDir;
+    strcpy(newDir.name, name);
+    newDir.fileCount = 0;
+    return newDir;
+}
+
+// Function to add a file to a directory
+void addFile(struct Directory *dir, char fileName[]) {
+    if (dir->fileCount < 100) {
+        strcpy(dir->files[dir->fileCount].name, fileName);
+        dir->fileCount++;
+    } else {
+        printf("Directory is full, cannot add more files.\n");
+    }
+}
+
+// Function to display the contents of a directory
+void displayDirectory(struct Directory *dir) {
+    printf("Contents of Directory '%s':\n", dir->name);
+    for (int i = 0; i < dir->fileCount; i++) {
+        printf("%s\n", dir->files[i].name);
+    }
+}
+
+int main() {
+    // Create a directory
+    struct Directory myDirectory = createDirectory("MyFiles");
+
+    // Add files to the directory
+    addFile(&myDirectory, "file1.txt");
+    addFile(&myDirectory, "file2.txt");
+    addFile(&myDirectory, "file3.txt");
+
+    // Display the contents of the directory
+    displayDirectory(&myDirectory);
+
+    return 0;
+}

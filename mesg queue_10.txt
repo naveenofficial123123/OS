@@ -1,0 +1,73 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+
+// Structure for the message
+struct Message {
+    long messageType;
+    char data[100];
+};
+
+// Function to send a message to the queue
+void sendMessage(int msgQueueId, struct Message *message) {
+    if (msgsnd(msgQueueId, message, sizeof(struct Message) - sizeof(long), 0) == -1) {
+        perror("Error sending message to queue");
+        exit(EXIT_FAILURE);
+    }
+}
+
+// Function to receive a message from the queue
+void receiveMessage(int msgQueueId, struct Message *message, long messageType) {
+    if (msgrcv(msgQueueId, message, sizeof(struct Message) - sizeof(long), messageType, 0) == -1) {
+        perror("Error receiving message from queue");
+        exit(EXIT_FAILURE);
+    }
+}
+
+int main() {
+    key_t key = ftok("/tmp", 'A'); // Generate a unique key
+    int msgQueueId = msgget(key, IPC_CREAT | 0666); // Create a message queue
+
+    if (msgQueueId == -1) {
+        perror("Error creating message queue");
+        exit(EXIT_FAILURE);
+    }
+
+    pid_t childPid = fork();
+
+    if (childPid == -1) {
+        perror("Error forking process");
+        exit(EXIT_FAILURE);
+    }
+
+    if (childPid == 0) {
+        // Child process (receiver)
+        struct Message receivedMessage;
+        receiveMessage(msgQueueId, &receivedMessage, 1);
+
+        printf("Child Process (Receiver) received message: %s\n", receivedMessage.data);
+    } else {
+        // Parent process (sender)
+        struct Message sendMessage;
+        sendMessage.messageType = 1; // Set the message type
+        printf("Enter message to send to Child Process (Receiver): ");
+        fgets(sendMessage.data, sizeof(sendMessage.data), stdin);
+
+        // Send message to the queue
+        sendMessage(msgQueueId, &sendMessage);
+
+        // Wait for the child process to finish
+        wait(NULL);
+    }
+
+    // Remove the message queue
+    if (msgctl(msgQueueId, IPC_RMID, NULL) == -1) {
+        perror("Error removing message queue");
+        exit(EXIT_FAILURE);
+    }
+
+    return 0;
+}

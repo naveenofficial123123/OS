@@ -1,0 +1,68 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+
+int main() {
+    const char *filename = "example.txt";
+    char buffer[100];
+
+    // Create a new file with write-only and read permissions for the owner
+    int fileDescriptor = creat(filename, S_IRUSR | S_IWUSR);
+    
+    if (fileDescriptor == -1) {
+        perror("Error creating file");
+        exit(EXIT_FAILURE);
+    } else {
+        printf("File created successfully.\n");
+    }
+
+    // Write data to the file
+    const char *data = "Hello, UNIX System Calls!";
+    ssize_t bytesWritten = write(fileDescriptor, data, strlen(data));
+
+    if (bytesWritten == -1) {
+        perror("Error writing to file");
+        exit(EXIT_FAILURE);
+    } else {
+        printf("Data written to file successfully.\n");
+    }
+
+    // Close the file
+    if (close(fileDescriptor) == -1) {
+        perror("Error closing file");
+        exit(EXIT_FAILURE);
+    } else {
+        printf("File closed successfully.\n");
+    }
+
+    // Open the file for reading
+    fileDescriptor = open(filename, O_RDONLY);
+
+    if (fileDescriptor == -1) {
+        perror("Error opening file for reading");
+        exit(EXIT_FAILURE);
+    } else {
+        printf("File opened for reading successfully.\n");
+    }
+
+    // Read data from the file
+    ssize_t bytesRead = read(fileDescriptor, buffer, sizeof(buffer));
+
+    if (bytesRead == -1) {
+        perror("Error reading from file");
+        exit(EXIT_FAILURE);
+    } else {
+        printf("Data read from file: %.*s\n", (int)bytesRead, buffer);
+    }
+
+    // Close the file
+    if (close(fileDescriptor) == -1) {
+        perror("Error closing file");
+        exit(EXIT_FAILURE);
+    } else {
+        printf("File closed successfully.\n");
+    }
+
+    return 0;
+}

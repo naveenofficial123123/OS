@@ -1,0 +1,62 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <dirent.h>
+
+int main() {
+    // File descriptor and buffer for reading and writing
+    int file_descriptor;
+    char buffer[100];
+
+    // Open a file using open system call
+    file_descriptor = open("example.txt", O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+    
+    if (file_descriptor == -1) {
+        perror("Error opening the file");
+        exit(EXIT_FAILURE);
+    }
+
+    // Write to the file using write system call
+    write(file_descriptor, "Hello, UNIX!\n", 13);
+
+    // Move the file pointer using lseek system call
+    lseek(file_descriptor, 0, SEEK_SET);
+
+    // Read from the file using read system call
+    read(file_descriptor, buffer, 13);
+    printf("Read from file: %s", buffer);
+
+    // Use fcntl system call for file control (e.g., setting file status flags)
+    int flags = fcntl(file_descriptor, F_GETFL);
+    flags |= O_APPEND; // Set the O_APPEND flag
+    fcntl(file_descriptor, F_SETFL, flags);
+
+    // Use stat system call to retrieve information about the file
+    struct stat file_info;
+    if (stat("example.txt", &file_info) == 0) {
+        printf("File size: %ld bytes\n", file_info.st_size);
+    } else {
+        perror("Error getting file information");
+    }
+
+    // Use readdir system call to read the contents of a directory
+    DIR *dir = opendir(".");
+    if (dir != NULL) {
+        struct dirent *entry;
+        printf("Contents of the current directory:\n");
+        while ((entry = readdir(dir)) != NULL) {
+            printf("%s\n", entry->d_name);
+        }
+        closedir(dir);
+    } else {
+        perror("Error opening directory");
+    }
+
+    // Close the file using close system call
+    close(file_descriptor);
+
+    return 0;
+}
